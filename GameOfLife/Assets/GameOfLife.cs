@@ -9,9 +9,10 @@ public class GameOfLife : MonoBehaviour {
     int amountOfAliveNeighbors = 0;
     int numberOfRows = 100;
     int numberOfColumns = 100;
+    int spawnChance = 10;
 
     public GameObject cellPrefab;
-    GameObject[,] cells;
+    Cell[,] cells;
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +21,7 @@ public class GameOfLife : MonoBehaviour {
 
     void initializeGameOfLife()
     {
-        cells = new GameObject[numberOfColumns, numberOfRows];
+        cells = new Cell[numberOfColumns, numberOfRows];
 
         Vector3 spawnOffset = new Vector3(0, 0, 0);
         Vector3 spawnXOffset = new Vector3(1, 0, 0);
@@ -32,12 +33,12 @@ public class GameOfLife : MonoBehaviour {
             {
                 spawnOffset = spawnXOffset * x + spawnYOffset * y;
 
-
-                cells[x, y] = Instantiate(cellPrefab, transform.position + spawnOffset, transform.rotation, transform);
-                if (Random.Range(0, 100) > 10)
+                GameObject newCell = Instantiate(cellPrefab, transform.position + spawnOffset, Quaternion.identity, transform);
+                cells[x, y] = newCell.GetComponent<Cell>();
+                if (Random.Range(0, 100) > spawnChance)
                 {
-                    cells[x, y].GetComponent<Cell>().SetAlive(false);
-                    cells[x, y].GetComponent<Cell>().SetNextAlive(false);
+                    cells[x, y].SetAlive(false);
+                    cells[x, y].SetNextAlive(false);
                 }
             }
         }
@@ -65,7 +66,7 @@ public class GameOfLife : MonoBehaviour {
             {
                 for (int y = 0; y < numberOfRows; y++)
                 {
-                    cells[x, y].GetComponent<Cell>().UpdateState();
+                    cells[x, y].UpdateState();
                 }
             }
 
@@ -97,20 +98,20 @@ public class GameOfLife : MonoBehaviour {
             for (int yi = minY; yi <= maxY; yi++)
             {
                 if (!(xi == 0 && yi == 0))
-                    amountOfAliveNeighbors += cells[x + xi, y + yi].GetComponent<Cell>().CheckAlive();
+                    amountOfAliveNeighbors += cells[x + xi, y + yi].CheckAlive();
             }
         }
     }
 
-    void HandleCell(GameObject cell)
+    void HandleCell(Cell cell)
     {
-        if (cell.GetComponent<Cell>().CheckAlive() == 1  && (amountOfAliveNeighbors < 2 || amountOfAliveNeighbors > 3))
+        if (cell.CheckAlive() == 1  && (amountOfAliveNeighbors < 2 || amountOfAliveNeighbors > 3))
         {
-            cell.GetComponent<Cell>().SetNextAlive(false);
+            cell.SetNextAlive(false);
         }
-        else if (cell.GetComponent<Cell>().CheckAlive() == 0 && amountOfAliveNeighbors == 3)
+        else if (cell.CheckAlive() == 0 && amountOfAliveNeighbors == 3)
         {
-            cell.GetComponent<Cell>().SetNextAlive(true);
+            cell.SetNextAlive(true);
         }
     }
 }
